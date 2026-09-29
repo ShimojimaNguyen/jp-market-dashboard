@@ -323,12 +323,121 @@ def read_xls(data: bytes) -> dict[str, list[list]]:
     return out
 
 
+# ---------------------------------------------------------------- xlsx
+
+def read_xlsx(data: bytes) -> dict[str, list[list]]:
+    """新形式 .xlsx。ZIP + XML なので標準ライブラリだけで足りる。
+
+    JPX は同じ統計でもファイルによって .xls と .xlsx を使い分ける（週次の
+    投資部門別は .xls、上場銘柄一覧 data_j は .xlsx）。呼ぶ側に意識させない
+    よう read_any() で振り分ける。
+
+    共有文字列（sharedStrings.xml）を引く t="s" セルと、インライン文字列
+    t="inlineStr"、それ以外は数値として扱う。
+    """
+    import io as _io
+    import zipfile
+    import xml.etree.ElementTree as ET
+
+    NS = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
+    NSR = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}"
+
+    with zipfile.ZipFile(_io.BytesIO(data)) as z:
+        names = set(z.namelist())
+
+        shared: list[str] = []
+        if "xl/sharedStrings.xml" in names:
+            root = ET.fromstring(z.read("xl/sharedStrings.xml"))
+            for si in root.findall(f"{NS}si"):
+                # <si> は <t> 直下か、書式ごとに分かれた <r><t> の並び
+                shared.append("".join(t.text or "" for t in si.iter(f"{NS}t")))
+
+        # シート名 -> ファイル。workbook.xml の順序と rels を突き合わせる。
+        sheets: list[tuple[str, str]] = []
+        if "xl/workbook.xml" in names:
+            wb = ET.fromstring(z.read("xl/workbook.xml"))
+            rels = {}
+            if "xl/_rels/workbook.xml.rels" in names:
+                for r in ET.fromstring(z.read("xl/_rels/workbook.xml.rels")):
+                    rels[r.get("Id")] = r.get("Target")
+            for i, sh in enumerate(wb.iter(f"{NS}sheet"), start=1):
+                tgt = rels.get(sh.get(f"{NSR}id")) or f"worksheets/sheet{i}.xml"
+                tgt = tgt.lstrip("/")
+                path = tgt if tgt.startswith("xl/") else "xl/" + tgt
+                sheets.append((sh.get("name") or f"Sheet{i}", path))
+        if not sheets:
+            sheets = [("Sheet1", "xl/worksheets/sheet1.xml")]
+
+        def col_index(ref: str) -> int:
+            n = 0
+            for ch in ref:
+                if not ch.isalpha():
+                    break
+                n = n * 26 + (ord(ch.upper()) - 64)
+            return n - 1
+
+        out: dict[str, list[list]] = {}
+        for name, path in sheets:
+            if path not in names:
+                out[name] = []
+                continue
+            cells: dict[tuple[int, int], object] = {}
+            root = ET.fromstring(z.read(path))
+            for r_i, row in enumerate(root.iter(f"{NS}row")):
+                for c in row.findall(f"{NS}c"):
+                    ref = c.get("r") or ""
+                    ci = col_index(ref) if ref else 0
+                    ri = int("".join(ch for ch in ref if ch.isdigit()) or (r_i + 1)) - 1
+                    t = c.get("t")
+                    if t == "s":
+                        v = c.find(f"{NS}v")
+                        idx = int(v.text) if v is not None and v.text else -1
+                        val = shared[idx] if 0 <= idx < len(shared) else None
+                    elif t == "inlineStr":
+                        val = "".join(x.text or "" for x in c.iter(f"{NS}t")) or None
+                    else:
+                        v = c.find(f"{NS}v")
+                        if v is None or v.text is None:
+                            val = None
+                        else:
+                            try:
+                                val = float(v.text)
+                            except ValueError:
+                                val = v.text
+                    if val is not None:
+                        cells[(ri, ci)] = val
+            if not cells:
+                out[name] = []
+                continue
+            nr = max(r for r, _ in cells) + 1
+            nc = max(c for _, c in cells) + 1
+            grid = [[None] * nc for _ in range(nr)]
+            for (r, c), v in cells.items():
+                grid[r][c] = v
+            out[name] = grid
+    return out
+
+
+def read_any(data: bytes) -> dict[str, list[list]]:
+    """中身を見て .xls / .xlsx を振り分ける。拡張子は信用しない。
+
+    JPX は拡張子と中身が食い違うことこそ無いが、拡張子で分岐すると
+    「.xls という名前の .xlsx」に当たった日に無言で落ちる。先頭4バイトで判定
+    する方が、判定材料がファイル自身の中にある分だけ強い。
+    """
+    if data.startswith(b"PK"):
+        return read_xlsx(data)
+    if data.startswith(CFB_SIG):
+        return read_xls(data)
+    raise NotSupported(f"既知の署名に一致しない: {data[:8].hex()}")
+
+
 def main() -> int:
     if len(sys.argv) < 2:
         print(__doc__)
         return 2
     with open(sys.argv[1], "rb") as f:
-        sheets = read_xls(f.read())
+        sheets = read_any(f.read())
     for name, grid in sheets.items():
         print(f"=== {name} : {len(grid)} 行 ===")
         for row in grid[:25]:
@@ -339,4 +448,16 @@ def main() -> int:
 
 
 if __name__ == "__main__":
+    # Console Windows ở máy dev là cp932, còn log của script này có tiếng Việt/
+    # tiếng Nhật. Không ép UTF-8 thì `print` ném UnicodeEncodeError và SCRIPT CHẾT
+    # GIỮA CHỪNG — ở đúng dòng log, không phải ở chỗ lấy dữ liệu.
+    #
+    # CI chạy Linux/UTF-8 nên chuyện này không bao giờ xảy ra ở đó. Nghĩa là nó chỉ
+    # cắn khi phải chạy tay tại máy — tức đúng lúc CI đang hỏng và cần chạy tay.
+    for _s in (sys.stdout, sys.stderr):
+        try:
+            _s.reconfigure(encoding="utf-8", errors="replace")
+        except Exception:  # noqa: BLE001
+            pass
+
     sys.exit(main())

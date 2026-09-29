@@ -41,6 +41,18 @@ from datetime import datetime, timedelta, timezone
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from xls_reader import read_xls  # noqa: E402
 
+# Console Windows ở máy dev là cp932, còn log của script này có tiếng Việt/
+# tiếng Nhật. Không ép UTF-8 thì `print` ném UnicodeEncodeError và SCRIPT CHẾT
+# GIỮA CHỪNG — ở đúng dòng log, không phải ở chỗ lấy dữ liệu.
+#
+# CI chạy Linux/UTF-8 nên chuyện này không bao giờ xảy ra ở đó. Nghĩa là nó chỉ
+# cắn khi phải chạy tay tại máy — tức đúng lúc CI đang hỏng và cần chạy tay.
+for _s in (sys.stdout, sys.stderr):
+    try:
+        _s.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:  # noqa: BLE001
+        pass
+
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 OUT = os.path.join(ROOT, "data", "jp-investor.json")
 HIST = os.path.join(ROOT, "data", "history", "investor.jsonl")
