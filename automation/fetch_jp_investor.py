@@ -206,7 +206,10 @@ def build() -> dict | None:
 
     for k, v in out.items():
         v["netOku"] = oku(v["netThousandYen"])
-        log(f"  {k:14} 買い越し {v['netOku']:>10,.1f} 億円")
+        # 符号で語を選ぶ。負の値に「買い越し」と書くと、ログを読む人が逆に
+        # 受け取る。JSON 側は符号付きの netOku だけなので影響はログのみ。
+        side = "買い越し" if v["netOku"] >= 0 else "売り越し"
+        log(f"  {k:14} {side} {abs(v['netOku']):>10,.1f} 億円")
 
     return {
         "schemaVersion": "1.0",

@@ -125,7 +125,11 @@ def parse_row(td: list[str]) -> dict | None:
     if not v.isdigit():
         return None
 
+    # 値段セルは「17,880 15:30」か「17,880 09/28」のどちらか。
+    # 時刻なら「今日のその時点の値」、日付なら「その日の終値」— Yahoo はこの
+    # 二つを使い分ける。時刻しか無い行を「日付不明」と読むと asof が消える。
     md = re.search(r"(\d{2})/(\d{2})", price_cell)
+    hm = re.search(r"(?<!\d)([0-2]\d):([0-5]\d)(?!\d)", price_cell)
     pct = re.search(r"([-+−]?[\d.]+)\s*%", chg_cell)
 
     return {
@@ -137,6 +141,8 @@ def parse_row(td: list[str]) -> dict | None:
         "turnover_yen": int(v),
         "pct": float(pct.group(1).replace("−", "-")) if pct else None,
         "date_md": f"{md.group(1)}-{md.group(2)}" if md else None,
+        # 日付が無く時刻だけ = 今日の取引。session_date() がここを使う。
+        "is_today": md is None and hm is not None,
     }
 
 
@@ -145,9 +151,19 @@ def session_date(rows: list[dict]) -> str | None:
 
     年はページに無いので今日から補う。年またぎ（1月に12月の日付を見る場合）は
     前年に倒す — そうしないと 12/30 が翌年扱いになり、履歴の並びが壊れる。
+
+    日付が一つも無い場合（全行が「15:30」のような時刻）は、その値が「今日の
+    取引」であることを Yahoo がそう表示している、という意味なので今日を返す。
+    実測 2026-09-29: 同日 19:43 に走らせると全行が時刻表示になり、ここが None
+    を返して asof が消えた。CI は翌日 01:52 に走るので日付表示になり、この穴
+    は CI では一度も出ていない。手で走らせたときだけ出る。
+
+    それでも時刻すら無ければ None。推測はしない。
     """
     md = [r["date_md"] for r in rows if r.get("date_md")]
     if not md:
+        if rows and sum(1 for r in rows if r.get("is_today")) > len(rows) / 2:
+            return datetime.now(JST).date().isoformat()
         return None
     common = max(set(md), key=md.count)
     mm, dd = common.split("-")
