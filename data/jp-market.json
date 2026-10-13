@@ -1,20 +1,20 @@
 {
   "schemaVersion": "1.0",
-  "asof": "2026-10-09",
-  "generatedAtJst": "2026-10-09T22:53:57+09:00",
+  "asof": "2026-10-13",
+  "generatedAtJst": "2026-10-13T23:38:36+09:00",
   "quality": {
     "primeTurnover": "live"
   },
   "primeTurnover": {
-    "yen": 7709042067480,
-    "trillionYen": 7.709,
-    "n": 798,
+    "yen": 7831818510380,
+    "trillionYen": 7.832,
+    "n": 799,
     "unit": "円",
     "note": null
   },
   "allMarketsTurnover": {
-    "yen": 8569922341869,
-    "trillionYen": 8.57,
+    "yen": 8640456424654,
+    "trillionYen": 8.64,
     "n": 1000
   },
   "coverage": {
@@ -27,122 +27,122 @@
     {
       "code": "285A",
       "name": "キオクシアホールディングス(株)",
-      "pct": -2.21,
-      "turnoverYen": 607898321500
+      "pct": -13.28,
+      "turnoverYen": 981838010500
     },
     {
       "code": "6857",
       "name": "(株)アドバンテスト",
-      "pct": 1.66,
-      "turnoverYen": 602556291000
-    },
-    {
-      "code": "9984",
-      "name": "ソフトバンクグループ(株)",
-      "pct": -3.92,
-      "turnoverYen": 415213128900
+      "pct": -2.91,
+      "turnoverYen": 631945361000
     },
     {
       "code": "6976",
       "name": "太陽誘電(株)",
-      "pct": 1.64,
-      "turnoverYen": 244982132500
+      "pct": -4.89,
+      "turnoverYen": 288364493000
+    },
+    {
+      "code": "9984",
+      "name": "ソフトバンクグループ(株)",
+      "pct": -8.5,
+      "turnoverYen": 264653579500
     },
     {
       "code": "6920",
       "name": "レーザーテック(株)",
-      "pct": 4.18,
-      "turnoverYen": 228266005000
-    },
-    {
-      "code": "6981",
-      "name": "(株)村田製作所",
-      "pct": -3.59,
-      "turnoverYen": 174741782900
-    },
-    {
-      "code": "8035",
-      "name": "東京エレクトロン(株)",
-      "pct": 2.09,
-      "turnoverYen": 167026245000
+      "pct": -5.09,
+      "turnoverYen": 239467141000
     },
     {
       "code": "5803",
       "name": "(株)フジクラ",
-      "pct": -1.8,
-      "turnoverYen": 160626667400
+      "pct": -6.34,
+      "turnoverYen": 183045238500
     },
     {
-      "code": "9983",
-      "name": "(株)ファーストリテイリング",
-      "pct": -4.04,
-      "turnoverYen": 155969958000
+      "code": "6981",
+      "name": "(株)村田製作所",
+      "pct": -4.87,
+      "turnoverYen": 176533576300
+    },
+    {
+      "code": "8035",
+      "name": "東京エレクトロン(株)",
+      "pct": -7.15,
+      "turnoverYen": 140248968500
     },
     {
       "code": "8306",
       "name": "(株)三菱ＵＦＪフィナンシャル・グループ",
-      "pct": -1.2,
-      "turnoverYen": 119759428400
+      "pct": 2.57,
+      "turnoverYen": 122180556000
     },
     {
       "code": "4062",
       "name": "イビデン(株)",
-      "pct": -2.5,
-      "turnoverYen": 103595069500
+      "pct": -7.77,
+      "turnoverYen": 119150605000
+    },
+    {
+      "code": "9983",
+      "name": "(株)ファーストリテイリング",
+      "pct": 2.8,
+      "turnoverYen": 106346957000
     },
     {
       "code": "6146",
       "name": "(株)ディスコ",
-      "pct": 0.52,
-      "turnoverYen": 91533675000
+      "pct": -4.69,
+      "turnoverYen": 95809873000
     },
     {
       "code": "5801",
       "name": "古河電気工業(株)",
-      "pct": -2.94,
-      "turnoverYen": 89487072000
+      "pct": -4.91,
+      "turnoverYen": 90125846500
     },
     {
-      "code": "7974",
-      "name": "任天堂(株)",
-      "pct": 3.76,
-      "turnoverYen": 88936602400
-    },
-    {
-      "code": "8411",
-      "name": "(株)みずほフィナンシャルグループ",
-      "pct": -1.63,
-      "turnoverYen": 83302577200
+      "code": "6501",
+      "name": "(株)日立製作所",
+      "pct": 1.68,
+      "turnoverYen": 76242660300
     },
     {
       "code": "6098",
       "name": "(株)リクルートホールディングス",
-      "pct": 3.23,
-      "turnoverYen": 71352089500
+      "pct": 1.49,
+      "turnoverYen": 75958672500
+    },
+    {
+      "code": "7203",
+      "name": "トヨタ自動車(株)",
+      "pct": 2.53,
+      "turnoverYen": 74278355300
     },
     {
       "code": "6525",
       "name": "(株)ＫＯＫＵＳＡＩ ＥＬＥＣＴＲＩＣ",
-      "pct": 2.81,
-      "turnoverYen": 62409057300
+      "pct": -9.53,
+      "turnoverYen": 59003900900
     },
     {
-      "code": "8316",
-      "name": "(株)三井住友フィナンシャルグループ",
-      "pct": -1.24,
-      "turnoverYen": 60986543100
+      "code": "6506",
+      "name": "(株)安川電機",
+      "pct": 1.19,
+      "turnoverYen": 57313595200
     },
     {
-      "code": "2914",
-      "name": "ＪＴ",
-      "pct": 3.88,
-      "turnoverYen": 59976677600
+      "code": "4004",
+      "name": "(株)レゾナック・ホールディングス",
+      "pct": -7.57,
+      "turnoverYen": 57010658000
     },
     {
-      "code": "6758",
-      "name": "ソニーグループ(株)",
-      "pct": 2.91,
-      "turnoverYen": 59450457100
+      "code": "8411",
+      "name": "(株)みずほフィナンシャルグループ",
+      "pct": 1.97,
+      "turnoverYen": 56233952300
     }
   ],
   "source": "Yahoo!ファイナンス 売買代金ランキング（market=all、行ごとの市場区分でプライムを抽出）"
